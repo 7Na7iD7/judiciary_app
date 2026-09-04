@@ -11,7 +11,6 @@ namespace JudiciaryApi.Models
         public string? Result { get; set; }
         public DateTime? NextHearingDate { get; set; }
         
-        // Navigation Property
         public Case? Case { get; set; }
     }
 }

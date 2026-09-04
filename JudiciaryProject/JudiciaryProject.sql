@@ -1,7 +1,6 @@
 USE master;
 GO
 
--- حذف دیتابیس قبلی در صورت وجود
 IF EXISTS (SELECT name FROM sys.databases WHERE name = 'JudiciaryProject')
 BEGIN
     ALTER DATABASE JudiciaryProject SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -9,45 +8,41 @@ BEGIN
 END
 GO
 
--- ایجاد پایگاه داده دادگستری
 CREATE DATABASE JudiciaryProject;
 GO
 
 USE JudiciaryProject;
 GO
 
--- جدول دادستان‌ها
 CREATE TABLE Prosecutors (
     ProsecutorID INT IDENTITY(1,1) PRIMARY KEY,
     FullName NVARCHAR(100) NOT NULL,
     NationalCode VARCHAR(10) NOT NULL UNIQUE,
     Phone VARCHAR(11),
     Email VARCHAR(50),
-    Specialty NVARCHAR(100), -- تخصص (کیفری، حقوقی، خانواده و غیره)
+    Specialty NVARCHAR(100),
     LicenseNumber VARCHAR(20) UNIQUE
 );
 GO
 
--- جدول دادگاه‌ها
 CREATE TABLE Courts (
     CourtID INT IDENTITY(1,1) PRIMARY KEY,
     CourtName NVARCHAR(100) NOT NULL,
-    CourtType NVARCHAR(50), -- نوع دادگاه (کیفری، حقوقی، انقلاب و غیره)
+    CourtType NVARCHAR(50),
     Address NVARCHAR(200),
     Phone VARCHAR(11)
 );
 GO
 
--- جدول پرونده‌ها
 CREATE TABLE Cases (
     CaseID INT IDENTITY(1,1) PRIMARY KEY,
     CaseNumber VARCHAR(50) NOT NULL UNIQUE,
     CaseTitle NVARCHAR(200) NOT NULL,
     CourtID INT NOT NULL,
     ProsecutorID INT NOT NULL,
-    CaseType NVARCHAR(50), -- نوع پرونده (کیفری، حقوقی، خانواده و غیره)
+    CaseType NVARCHAR(50),
     RegisterDate DATETIME DEFAULT GETDATE(),
-    CaseStatus NVARCHAR(50) DEFAULT N'در جریان', -- وضعیت (در جریان، بسته شده، معلق و غیره)
+    CaseStatus NVARCHAR(50) DEFAULT N'در جریان',
     Description NVARCHAR(500),
 
     CONSTRAINT FK_Cases_Courts
@@ -58,23 +53,21 @@ CREATE TABLE Cases (
 );
 GO
 
--- جدول متهمان/شاکیان
 CREATE TABLE Persons (
     PersonID INT IDENTITY(1,1) PRIMARY KEY,
     FullName NVARCHAR(100) NOT NULL,
     NationalCode VARCHAR(10) NOT NULL UNIQUE,
     Phone VARCHAR(11),
     Address NVARCHAR(200),
-    PersonType NVARCHAR(50) -- نوع شخص (متهم، شاکی، شاهد و غیره)
+    PersonType NVARCHAR(50)
 );
 GO
 
--- جدول ارتباط اشخاص با پرونده‌ها
 CREATE TABLE CasePersons (
     CasePersonID INT IDENTITY(1,1) PRIMARY KEY,
     CaseID INT NOT NULL,
     PersonID INT NOT NULL,
-    Role NVARCHAR(50), -- نقش در پرونده (متهم، شاکی، شاهد، وکیل و غیره)
+    Role NVARCHAR(50),
     JoinDate DATETIME DEFAULT GETDATE(),
     Notes NVARCHAR(500),
 
@@ -89,13 +82,12 @@ CREATE TABLE CasePersons (
 );
 GO
 
--- جدول جلسات دادرسی
 CREATE TABLE Hearings (
     HearingID INT IDENTITY(1,1) PRIMARY KEY,
     CaseID INT NOT NULL,
     HearingDate DATETIME NOT NULL,
-    HearingType NVARCHAR(50), -- نوع جلسه (رسیدگی، صدور حکم، استماع شهود و غیره)
-    Result NVARCHAR(500), -- نتیجه جلسه
+    HearingType NVARCHAR(50),
+    Result NVARCHAR(500),
     NextHearingDate DATETIME,
 
     CONSTRAINT FK_Hearings_Cases
@@ -103,7 +95,6 @@ CREATE TABLE Hearings (
 );
 GO
 
--- درج داده‌های نمونه - دادگاه‌ها
 INSERT INTO Courts (CourtName, CourtType, Address, Phone) VALUES
 (N'دادگاه کیفری یک تهران', N'کیفری', N'تهران، خیابان آزادی', '02112345678'),
 (N'دادگاه حقوقی شعبه ۵', N'حقوقی', N'تهران، میدان ونک', '02112345679'),
@@ -112,7 +103,6 @@ INSERT INTO Courts (CourtName, CourtType, Address, Phone) VALUES
 (N'دادگاه عمومی کرج', N'عمومی', N'کرج، بلوار شهید بهشتی', '02634567890');
 GO
 
--- درج داده‌های نمونه - دادستان‌ها
 INSERT INTO Prosecutors (FullName, NationalCode, Phone, Email, Specialty, LicenseNumber) VALUES
 (N'دکتر محمد رضایی', '0012345678', '09121234567', 'rezaei@judiciary.ir', N'کیفری', 'P-12345'),
 (N'دکتر فاطمه احمدی', '0012345679', '09121234568', 'ahmadi@judiciary.ir', N'حقوقی', 'P-12346'),
@@ -121,7 +111,6 @@ INSERT INTO Prosecutors (FullName, NationalCode, Phone, Email, Specialty, Licens
 (N'دکتر حسین صادقی', '0012345682', '09121234571', 'sadeghi@judiciary.ir', N'کیفری', 'P-12349');
 GO
 
--- درج داده‌های نمونه - پرونده‌ها
 INSERT INTO Cases (CaseNumber, CaseTitle, CourtID, ProsecutorID, CaseType, RegisterDate, CaseStatus, Description) VALUES
 ('1403-1234', N'پرونده سرقت مسلحانه', 1, 1, N'کیفری', GETDATE(), N'در جریان', N'سرقت از یک فروشگاه طلا'),
 ('1403-1235', N'پرونده اختلاس مالی', 1, 5, N'کیفری', GETDATE(), N'در جریان', N'اختلاس از حساب شرکت'),
@@ -133,7 +122,6 @@ INSERT INTO Cases (CaseNumber, CaseTitle, CourtID, ProsecutorID, CaseType, Regis
 ('1403-1241', N'پرونده حضانت فرزند', 3, 3, N'خانواده', GETDATE(), N'در حال بررسی', N'اختلاف بر سر حضانت کودک');
 GO
 
--- درج داده‌های نمونه - اشخاص
 INSERT INTO Persons (FullName, NationalCode, Phone, Address, PersonType) VALUES
 (N'رضا احمدزاده', '1234567890', '09131234567', N'تهران، خیابان انقلاب', N'متهم'),
 (N'مریم کاظمی', '1234567891', '09131234568', N'تهران، خیابان شریعتی', N'شاکی'),
@@ -147,7 +135,6 @@ INSERT INTO Persons (FullName, NationalCode, Phone, Address, PersonType) VALUES
 (N'سمیرا قاسمی', '1234567899', '09131234576', N'کرج، خیابان شهید بهشتی', N'شاکی');
 GO
 
--- درج داده‌های نمونه - ارتباط اشخاص با پرونده‌ها
 INSERT INTO CasePersons (CaseID, PersonID, Role, JoinDate, Notes) VALUES
 (1, 1, N'متهم اصلی', GETDATE(), N'متهم ردیف اول'),
 (1, 2, N'شاکی', GETDATE(), N'مالک فروشگاه'),
@@ -161,7 +148,6 @@ INSERT INTO CasePersons (CaseID, PersonID, Role, JoinDate, Notes) VALUES
 (5, 10, N'شاکی', GETDATE(), N'خانواده متوفی');
 GO
 
--- درج داده‌های نمونه - جلسات دادرسی
 INSERT INTO Hearings (CaseID, HearingDate, HearingType, Result, NextHearingDate) VALUES
 (1, DATEADD(DAY, -10, GETDATE()), N'رسیدگی اولیه', N'احضار شهود', DATEADD(DAY, 15, GETDATE())),
 (1, DATEADD(DAY, -5, GETDATE()), N'استماع شهود', N'تکمیل پرونده', DATEADD(DAY, 20, GETDATE())),
@@ -171,7 +157,6 @@ INSERT INTO Hearings (CaseID, HearingDate, HearingType, Result, NextHearingDate)
 (7, DATEADD(DAY, -20, GETDATE()), N'صدور حکم', N'محکومیت متهم', NULL);
 GO
 
--- ویو جزئیات پرونده‌ها
 CREATE VIEW vw_CaseDetails AS
 SELECT 
     C.CaseID,
@@ -190,7 +175,6 @@ INNER JOIN Courts Co ON C.CourtID = Co.CourtID
 INNER JOIN Prosecutors P ON C.ProsecutorID = P.ProsecutorID;
 GO
 
--- ویو جزئیات اشخاص در پرونده‌ها
 CREATE VIEW vw_CasePersonsDetails AS
 SELECT 
     CP.CasePersonID,
@@ -207,7 +191,6 @@ INNER JOIN Cases C ON CP.CaseID = C.CaseID
 INNER JOIN Persons P ON CP.PersonID = P.PersonID;
 GO
 
--- ویو جزئیات جلسات دادرسی
 CREATE VIEW vw_HearingDetails AS
 SELECT 
     H.HearingID,
@@ -225,7 +208,6 @@ INNER JOIN Courts Co ON C.CourtID = Co.CourtID
 INNER JOIN Prosecutors P ON C.ProsecutorID = P.ProsecutorID;
 GO
 
--- پروسیجر ثبت پرونده جدید
 CREATE PROCEDURE sp_RegisterNewCase
     @CaseNumber VARCHAR(50),
     @CaseTitle NVARCHAR(200),
@@ -272,7 +254,6 @@ BEGIN
 END;
 GO
 
--- پروسیجر افزودن شخص به پرونده
 CREATE PROCEDURE sp_AddPersonToCase
     @CaseID INT,
     @PersonID INT,
@@ -317,7 +298,6 @@ BEGIN
 END;
 GO
 
--- پروسیجر ثبت جلسه دادرسی
 CREATE PROCEDURE sp_ScheduleHearing
     @CaseID INT,
     @HearingDate DATETIME,
@@ -355,7 +335,6 @@ BEGIN
 END;
 GO
 
--- پروسیجر بستن پرونده
 CREATE PROCEDURE sp_CloseCase
     @CaseID INT,
     @Result NVARCHAR(200) OUTPUT

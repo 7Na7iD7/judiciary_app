@@ -4,7 +4,6 @@ using JudiciaryApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// اضافه کردن سرویس‌ها
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -13,21 +12,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// تنظیمات Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// 1. تست اتصال
 app.MapGet("/test-db", async (AppDbContext db) =>
 {
     var canConnect = await db.Database.CanConnectAsync();
     return canConnect ? "Database Connected ✅" : "Database Not Connected ❌";
 });
 
-// 2. مدیریت دادگاه‌ها
 app.MapGet("/courts", async (AppDbContext db) =>
     await db.Courts.ToListAsync());
 
@@ -38,7 +34,6 @@ app.MapPost("/courts", async (AppDbContext db, Court court) =>
     return Results.Created($"/courts/{court.CourtID}", court);
 });
 
-// 3. مدیریت دادستان‌ها - با اضافه کردن تخصص
 app.MapGet("/prosecutors", async (AppDbContext db) =>
     await db.Prosecutors.ToListAsync());
 
@@ -49,7 +44,6 @@ app.MapPost("/prosecutors", async (AppDbContext db, Prosecutor prosecutor) =>
     return Results.Created($"/prosecutors/{prosecutor.ProsecutorID}", prosecutor);
 });
 
-// 4. مدیریت پرونده‌ها - با اطلاعات دادگاه و دادستان
 app.MapGet("/cases", async (AppDbContext db) =>
 {
     var cases = await db.Cases
@@ -85,7 +79,6 @@ app.MapPost("/cases", async (AppDbContext db, Case caseItem) =>
     return Results.Created($"/cases/{caseItem.CaseID}", caseItem);
 });
 
-// 5. مدیریت اشخاص (متهم، شاکی، شاهد و غیره)
 app.MapGet("/persons", async (AppDbContext db) =>
     await db.Persons.ToListAsync());
 
@@ -96,14 +89,12 @@ app.MapPost("/persons", async (AppDbContext db, Person person) =>
     return Results.Created($"/persons/{person.PersonID}", person);
 });
 
-// جستجوی شخص با کد ملی
 app.MapGet("/persons/by-nationalcode/{nationalCode}", async (AppDbContext db, string nationalCode) =>
 {
     var person = await db.Persons.FirstOrDefaultAsync(p => p.NationalCode == nationalCode);
     return person != null ? Results.Ok(person) : Results.NotFound();
 });
 
-// 6. مدیریت ارتباط اشخاص با پرونده‌ها (افزودن متهم، شاکی و غیره به پرونده)
 app.MapGet("/casepersons", async (AppDbContext db) =>
 {
     var casePersons = await db.CasePersons
@@ -132,7 +123,6 @@ app.MapPost("/casepersons", async (AppDbContext db, CasePerson casePerson) =>
     return Results.Created($"/casepersons/{casePerson.CasePersonID}", casePerson);
 });
 
-// 7. مدیریت جلسات دادرسی
 app.MapGet("/hearings", async (AppDbContext db) =>
 {
     var hearings = await db.Hearings
@@ -159,7 +149,6 @@ app.MapPost("/hearings", async (AppDbContext db, Hearing hearing) =>
     return Results.Created($"/hearings/{hearing.HearingID}", hearing);
 });
 
-// 8. آمار داشبورد
 app.MapGet("/dashboard-stats", async (AppDbContext db) =>
 {
     var totalCases = await db.Cases.CountAsync();
