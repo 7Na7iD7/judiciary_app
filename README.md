@@ -2,8 +2,6 @@
 
 <img width="800" alt="Banner" src="https://capsule-render.vercel.app/api?type=waving&color=0:1e3c72,50:667eea,100:764ba2&customColorList=2,6,12,18,24&height=250&section=header&text=Judiciary%20App&fontSize=80&fontAlignY=38&animation=twinkling&fontColor=ffffff&stroke=6a11cb&strokeWidth=2&fontAlign=50"/>
 
-# ⚖️ سیستم مدیریت دادگستری
-
 ### *Register a Case. Attach the People. See the Whole Picture.*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
